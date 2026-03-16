@@ -4,97 +4,181 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Support Ticket</title>
+
 <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-    h2 { text-align: center; }
-    form { max-width: 400px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, select, textarea, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
-    button { background-color: #007bff; color: white; border: none; cursor: pointer; }
-    button:hover { background-color: #0056b3; }
-    .hidden { display: none; }
+body { font-family: Arial; padding:20px; background:#f5f5f5; }
+h2 { text-align:center; }
+
+form{
+max-width:400px;
+margin:auto;
+background:#fff;
+padding:20px;
+border-radius:8px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+label{ display:block; margin-top:10px; font-weight:bold; }
+
+input, select, textarea, button{
+width:100%;
+padding:10px;
+margin-top:5px;
+border-radius:5px;
+border:1px solid #ccc;
+box-sizing:border-box;
+}
+
+button{
+background:#007bff;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+button:hover{ background:#0056b3; }
+
+.hidden{ display:none; }
+
 </style>
 </head>
+
 <body>
 
 <h2>Support Ticket</h2>
 
 <form id="ticketForm">
-    <label>Type</label>
-    <select name="department" id="type" required>
-        <option value="">Select Type</option>
-        <option value="Deposit Concern">Deposit Concern</option>
-        <option value="Withdrawal Issue">Withdrawal Issue</option>
-        <option value="Commission Issue">Commission Issue</option>
-        <option value="Report Balance Concern">Report Balance Concern</option>
-    </select>
 
-    <div id="shopnameDiv" class="hidden">
-        <label>Shop Name</label>
-        <input name="shopname" id="shopname" placeholder="Shop Name">
-    </div>
+<label>Type</label>
+<select name="department" id="type" required>
+<option value="">Select Type</option>
+<option value="Deposit Concern">Deposit Concern</option>
+<option value="Withdrawal Issue">Withdrawal Issue</option>
+<option value="Report Balance Concern">Report Balance Concern</option>
+</select>
 
-    <div id="referenceDiv" class="hidden">
-        <label>Reference</label>
-        <input name="reference" id="reference" placeholder="Reference">
-    </div>
+<div id="shopnameDiv" class="hidden">
+<label>Shop Name</label>
+<input name="shopname" id="shopname" placeholder="Shop Name">
+</div>
 
-    <div id="concernDiv" class="hidden">
-        <label>Concern</label>
-        <textarea name="concern" id="concern" placeholder="Describe your concern" required></textarea>
-    </div>
+<div id="referenceDiv" class="hidden">
+<label>Reference</label>
+<input name="reference" id="reference" placeholder="Reference">
+</div>
 
-    <input type="hidden" name="chatid" id="chatid">
+<div id="concernDiv" class="hidden">
+<label>Concern</label>
+<select name="concern" id="concern"></select>
+</div>
 
-    <button type="submit">Submit Ticket</button>
+<input type="hidden" name="chatid" id="chatid">
+
+<button type="submit">Submit Ticket</button>
+
 </form>
 
 <script>
-// Populate chatid from Telegram URL
+
+// populate chat id
 const urlParams = new URLSearchParams(window.location.search);
 document.getElementById("chatid").value = urlParams.get("chatid");
 
-// Show fields based on Type
-document.getElementById("type").addEventListener("change", function() {
-    const sel = this.value;
-    document.getElementById("shopnameDiv").classList.add("hidden");
-    document.getElementById("referenceDiv").classList.add("hidden");
-    document.getElementById("concernDiv").classList.add("hidden");
+const concernOptions = {
 
-    if (sel === "Deposit Concern" || sel === "Withdrawal Issue") {
-        document.getElementById("shopnameDiv").classList.remove("hidden");
-        document.getElementById("referenceDiv").classList.remove("hidden");
-        document.getElementById("concernDiv").classList.remove("hidden");
-    } else if (sel === "Commission Issue") {
-        document.getElementById("shopnameDiv").classList.remove("hidden");
-        document.getElementById("concernDiv").classList.remove("hidden");
-    } else if (sel === "Report Balance Concern") {
-        document.getElementById("concernDiv").classList.remove("hidden");
-    }
+"Deposit Concern":[
+"Double Record",
+"Wrong Amount",
+"Missing Depo",
+"Wrong Shop",
+"Not Received",
+"Other"
+],
+
+"Withdrawal Issue":[
+"Double Record",
+"Wrong Amount",
+"Missing Withdraw",
+"Wrong Shop",
+"Other"
+],
+
+"Report Balance Concern":[
+"Not balance",
+"Not Updated"
+]
+
+};
+
+document.getElementById("type").addEventListener("change",function(){
+
+const type = this.value;
+
+document.getElementById("shopnameDiv").classList.add("hidden");
+document.getElementById("referenceDiv").classList.add("hidden");
+document.getElementById("concernDiv").classList.add("hidden");
+
+const concernDropdown = document.getElementById("concern");
+concernDropdown.innerHTML = "";
+
+if(type==="Deposit Concern" || type==="Withdrawal Issue"){
+
+document.getElementById("shopnameDiv").classList.remove("hidden");
+document.getElementById("referenceDiv").classList.remove("hidden");
+document.getElementById("concernDiv").classList.remove("hidden");
+
+}
+
+if(type==="Report Balance Concern"){
+
+document.getElementById("shopnameDiv").classList.remove("hidden");
+document.getElementById("concernDiv").classList.remove("hidden");
+
+}
+
+if(concernOptions[type]){
+
+concernOptions[type].forEach(function(c){
+
+const option=document.createElement("option");
+option.value=c;
+option.textContent=c;
+
+concernDropdown.appendChild(option);
+
 });
 
-// Handle form submission
-document.getElementById("ticketForm").onsubmit = function(e) {
-    e.preventDefault();
+}
 
-    const formData = new FormData(this);
-    const params = new URLSearchParams();
-    formData.forEach((value, key) => {
-        if (value) params.append(key, value);
-    });
+});
 
-    // Replace with your deployed Google Apps Script Web App URL
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbz8fhpqWN-cjJXd0S_1rHWzqHPl--lMfcIPvPVGbIhvSrSIIvu-6a20Lv6tm1Au_oYTVA/exec";
+document.getElementById("ticketForm").onsubmit=function(e){
 
-    fetch(webAppUrl + "?" + params.toString())
-    .then(response => response.text())
-    .then(result => {
-        document.body.innerHTML = "<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
-    })
-    .catch(error => {
-        alert("Error submitting ticket: " + error);
-    });
+e.preventDefault();
+
+const formData=new FormData(this);
+const params=new URLSearchParams();
+
+formData.forEach((value,key)=>{
+if(value) params.append(key,value);
+});
+
+const webAppUrl="https://script.google.com/macros/s/AKfycbz8fhpqWN-cjJXd0S_1rHWzqHPl--lMfcIPvPVGbIhvSrSIIvu-6a20Lv6tm1Au_oYTVA/exec";
+
+fetch(webAppUrl+"?"+params.toString())
+
+.then(response=>response.text())
+
+.then(result=>{
+document.body.innerHTML="<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
+})
+
+.catch(error=>{
+alert("Error submitting ticket: "+error);
+});
+
 };
+
 </script>
 
 </body>
