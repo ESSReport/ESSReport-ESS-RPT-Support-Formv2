@@ -54,7 +54,7 @@
 const urlParams = new URLSearchParams(window.location.search);
 document.getElementById("chatid").value = urlParams.get("chatid");
 
-// Show fields based on type
+// Show fields based on Type
 document.getElementById("type").addEventListener("change", function() {
     const sel = this.value;
     document.getElementById("shopnameDiv").classList.add("hidden");
@@ -83,7 +83,7 @@ document.getElementById("ticketForm").onsubmit = function(e) {
         if (value) params.append(key, value);
     });
 
-    // Replace with your deployed Web App URL
+    // Replace with your deployed Google Apps Script Web App URL
     const webAppUrl = "https://script.google.com/macros/s/AKfycbzd1uxKHXloTT5ioaP32dkAAA6PhWMj5RwQUUbL4oduPokUr69aL176MNFnRQms9LOeCA/exec";
 
     fetch(webAppUrl + "?" + params.toString())
