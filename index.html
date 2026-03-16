@@ -20,9 +20,9 @@
 <h2>Support Ticket</h2>
 
 <form id="ticketForm">
-    <label>Department</label>
-    <select name="department" id="department" required>
-        <option value="">Select Department</option>
+    <label>Type</label>
+    <select name="department" id="type" required>
+        <option value="">Select Type</option>
         <option value="Deposit Concern">Deposit Concern</option>
         <option value="Withdrawal Issue">Withdrawal Issue</option>
         <option value="Commission Issue">Commission Issue</option>
@@ -54,21 +54,21 @@
 const urlParams = new URLSearchParams(window.location.search);
 document.getElementById("chatid").value = urlParams.get("chatid");
 
-// Show fields based on department
-document.getElementById("department").addEventListener("change", function() {
-    const dep = this.value;
+// Show fields based on type
+document.getElementById("type").addEventListener("change", function() {
+    const sel = this.value;
     document.getElementById("shopnameDiv").classList.add("hidden");
     document.getElementById("referenceDiv").classList.add("hidden");
     document.getElementById("concernDiv").classList.add("hidden");
 
-    if (dep === "Deposit Concern" || dep === "Withdrawal Issue") {
+    if (sel === "Deposit Concern" || sel === "Withdrawal Issue") {
         document.getElementById("shopnameDiv").classList.remove("hidden");
         document.getElementById("referenceDiv").classList.remove("hidden");
         document.getElementById("concernDiv").classList.remove("hidden");
-    } else if (dep === "Commission Issue") {
+    } else if (sel === "Commission Issue") {
         document.getElementById("shopnameDiv").classList.remove("hidden");
         document.getElementById("concernDiv").classList.remove("hidden");
-    } else if (dep === "Report Balance Concern") {
+    } else if (sel === "Report Balance Concern") {
         document.getElementById("concernDiv").classList.remove("hidden");
     }
 });
@@ -77,7 +77,6 @@ document.getElementById("department").addEventListener("change", function() {
 document.getElementById("ticketForm").onsubmit = function(e) {
     e.preventDefault();
 
-    // Convert form data to query string
     const formData = new FormData(this);
     const params = new URLSearchParams();
     formData.forEach((value, key) => {
@@ -85,12 +84,11 @@ document.getElementById("ticketForm").onsubmit = function(e) {
     });
 
     // Replace with your deployed Web App URL
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbzd1uxKHXloTT5ioaP32dkAAA6PhWMj5RwQUUbL4oduPokUr69aL176MNFnRQms9LOeCA/exec";
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbx3u9SWgVSVdEONav42tmZ2bZNyMue_2h7663isIGevxcFCV7Eld39fUFGVrjdLZbew/exec";
 
     fetch(webAppUrl + "?" + params.toString())
     .then(response => response.text())
     .then(result => {
-        // Show confirmation
         document.body.innerHTML = "<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
     })
     .catch(error => {
