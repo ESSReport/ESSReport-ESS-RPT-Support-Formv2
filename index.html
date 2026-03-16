@@ -84,7 +84,7 @@ document.getElementById("ticketForm").onsubmit = function(e) {
     });
 
     // Replace with your deployed Google Apps Script Web App URL
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbziiSCFlMtq642lKsfgWRNVMBL6JmoBAC-k5CyiMmcYGY-LNyb92K6Ih5lat7gMvJsgKA/exec";
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbzG-8o6svup29IijSAg5WMQLW44odgC0p9_JdfJk0n1w5z8XV26x7R0BWKG_Y2q6RIqaw/exec";
 
     fetch(webAppUrl + "?" + params.toString())
     .then(response => response.text())
