@@ -53,29 +53,64 @@ const concernOptions = {
   "Report Balance Concern": ["Not balance","Not Updated"]
 };
 
+// Populate chatid from URL parameter
 document.getElementById("chatid").value = new URLSearchParams(window.location.search).get("chatid");
 
-document.getElementById("type").addEventListener("change", function(){
+// Show/hide fields based on type
+document.getElementById("type").addEventListener("change", function() {
   const type = this.value;
   const shopDiv = document.getElementById("shopnameDiv");
   const refDiv = document.getElementById("referenceDiv");
   const concernDiv = document.getElementById("concernDiv");
   const concernDropdown = document.getElementById("concern");
-  shopDiv.classList.add("hidden"); refDiv.classList.add("hidden"); concernDiv.classList.add("hidden"); concernDropdown.innerHTML = "";
-  if(type==="Deposit Concern"||type==="Withdrawal Issue"){ shopDiv.classList.remove("hidden"); refDiv.classList.remove("hidden"); concernDiv.classList.remove("hidden"); }
-  if(type==="Report Balance Concern"){ shopDiv.classList.remove("hidden"); concernDiv.classList.remove("hidden"); }
-  if(concernOptions[type]){ concernOptions[type].forEach(c=>{ let o=document.createElement("option"); o.value=c;o.textContent=c; concernDropdown.appendChild(o); }); }
+
+  shopDiv.classList.add("hidden");
+  refDiv.classList.add("hidden");
+  concernDiv.classList.add("hidden");
+  concernDropdown.innerHTML = "";
+
+  if(type==="Deposit Concern" || type==="Withdrawal Issue") {
+    shopDiv.classList.remove("hidden");
+    refDiv.classList.remove("hidden");
+    concernDiv.classList.remove("hidden");
+  }
+  if(type==="Report Balance Concern") {
+    shopDiv.classList.remove("hidden");
+    concernDiv.classList.remove("hidden");
+  }
+
+  if(concernOptions[type]) {
+    concernOptions[type].forEach(c => {
+      const o = document.createElement("option");
+      o.value = c;
+      o.textContent = c;
+      concernDropdown.appendChild(o);
+    });
+  }
 });
 
-document.getElementById("ticketForm").addEventListener("submit", function(e){
+// Handle form submission
+document.getElementById("ticketForm").addEventListener("submit", function(e) {
   e.preventDefault();
+
   const formData = new FormData(this);
-  const webAppUrl = "https://script.google.com/macros/s/AKfycby26LO-8UcTT9E-Te_FSwG5BwyXeaC9zIZj4DB5QmbQ8xlcc7d5wLbKewuySfyldUC4YA/exec"; // Must be deployed as Anyone
-  fetch(webAppUrl,{method:"POST",body:formData})
-  .then(r=>r.text())
-  .then(result=>{ document.body.innerHTML="<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>"; })
-  .catch(err=>{ alert("Error submitting ticket: "+err); });
+  const params = new URLSearchParams();
+  formData.forEach((value, key) => {
+    if(value) params.append(key, value);
+  });
+
+  const webAppUrl = "https://script.google.com/macros/s/AKfycby26LO-8UcTT9E-Te_FSwG5BwyXeaC9zIZj4DB5QmbQ8xlcc7d5wLbKewuySfyldUC4YA/exec";
+
+  fetch(webAppUrl + "?" + params.toString(), { method: "POST" })
+    .then(r => r.text())
+    .then(result => {
+      document.body.innerHTML = "<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
+    })
+    .catch(err => {
+      alert("Error submitting ticket: " + err);
+    });
 });
 </script>
+
 </body>
 </html>
