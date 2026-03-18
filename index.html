@@ -89,26 +89,27 @@ document.getElementById("type").addEventListener("change", function() {
   }
 });
 
-// Handle form submission
+// Handle form submission with proper POST for CORS
 document.getElementById("ticketForm").addEventListener("submit", function(e) {
   e.preventDefault();
 
   const formData = new FormData(this);
-  const params = new URLSearchParams();
-  formData.forEach((value, key) => {
-    if(value) params.append(key, value);
-  });
-
   const webAppUrl = "https://script.google.com/macros/s/AKfycby26LO-8UcTT9E-Te_FSwG5BwyXeaC9zIZj4DB5QmbQ8xlcc7d5wLbKewuySfyldUC4YA/exec";
 
-  fetch(webAppUrl + "?" + params.toString(), { method: "POST" })
-    .then(r => r.text())
-    .then(result => {
-      document.body.innerHTML = "<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
-    })
-    .catch(err => {
-      alert("Error submitting ticket: " + err);
-    });
+  fetch(webAppUrl, {
+    method: "POST",
+    body: new URLSearchParams(formData),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    }
+  })
+  .then(r => r.text())
+  .then(result => {
+    document.body.innerHTML = "<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
+  })
+  .catch(err => {
+    alert("Error submitting ticket: " + err);
+  });
 });
 </script>
 
