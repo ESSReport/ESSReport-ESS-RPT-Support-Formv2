@@ -93,19 +93,27 @@ document.getElementById("type").addEventListener("change", function() {
 document.getElementById("ticketForm").addEventListener("submit", function(e) {
   e.preventDefault();
 
-  const formData = new FormData(this);
-  const webAppUrl = "https://script.google.com/macros/s/AKfycby26LO-8UcTT9E-Te_FSwG5BwyXeaC9zIZj4DB5QmbQ8xlcc7d5wLbKewuySfyldUC4YA/exec";
+  const chatid = document.getElementById("chatid").value;
+  if(!chatid) {
+    alert("Chat ID missing! Make sure you opened the form from Telegram link.");
+    return;
+  }
 
+  const formData = new FormData(this);
+  const webAppUrl = "https://script.google.com/macros/s/YOUR_WEB_APP_ID/exec"; // <-- replace with your web app URL
+
+  // Use FormData directly, let Apps Script handle parsing
   fetch(webAppUrl, {
     method: "POST",
-    body: new URLSearchParams(formData),
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    }
+    body: formData
   })
   .then(r => r.text())
   .then(result => {
-    document.body.innerHTML = "<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
+    if(result.toLowerCase().includes("success")) {
+      document.body.innerHTML = "<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
+    } else {
+      alert("Error submitting ticket: " + result);
+    }
   })
   .catch(err => {
     alert("Error submitting ticket: " + err);
