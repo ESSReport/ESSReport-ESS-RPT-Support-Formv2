@@ -1,25 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Support Ticket</title>
-<style>
-body { font-family: Arial; padding:20px; background:#f5f5f5; margin:0; }
-h2 { text-align:center; margin-bottom:20px; }
-form { max-width:500px; margin:auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
-label { display:block; margin-top:10px; font-weight:bold; }
-input, select, button { width:100%; padding:12px; margin-top:5px; border-radius:5px; border:1px solid #ccc; font-size:16px; box-sizing:border-box; }
-button { background:#007bff; color:white; border:none; cursor:pointer; margin-top:15px; }
-button:hover { background:#0056b3; }
-.hidden { display:none; }
-</style>
 </head>
 <body>
 
 <h2>Support Ticket</h2>
+
 <form id="ticketForm">
-  <label>Type</label>
   <select name="department" id="type" required>
     <option value="">Select Type</option>
     <option value="Deposit Concern">Deposit Concern</option>
@@ -27,97 +16,41 @@ button:hover { background:#0056b3; }
     <option value="Report Balance Concern">Report Balance Concern</option>
   </select>
 
-  <div id="shopnameDiv" class="hidden">
-    <label>Shop Name</label>
-    <input name="shopname" id="shopname" placeholder="Shop Name">
-  </div>
-
-  <div id="referenceDiv" class="hidden">
-    <label>Reference</label>
-    <input name="reference" id="reference" placeholder="Reference">
-  </div>
-
-  <div id="concernDiv" class="hidden">
-    <label>Concern</label>
-    <select name="concern" id="concern"></select>
-  </div>
+  <input name="shopname" placeholder="Shop Name">
+  <input name="reference" placeholder="Reference">
+  <input name="concern" placeholder="Concern">
 
   <input type="hidden" name="chatid" id="chatid">
-  <button type="submit">Submit Ticket</button>
+
+  <button type="submit">Submit</button>
 </form>
 
 <script>
-const concernOptions = {
-  "Deposit Concern": ["Double Record","Wrong Amount","Missing Depo","Wrong Shop","Not Received","Other"],
-  "Withdrawal Issue": ["Double Record","Wrong Amount","Missing Withdraw","Wrong Shop","Other"],
-  "Report Balance Concern": ["Not balance","Not Updated"]
-};
+// ✅ get chat id
+document.getElementById("chatid").value =
+  new URLSearchParams(window.location.search).get("chatid");
 
-// Populate chatid from URL parameter
-document.getElementById("chatid").value = new URLSearchParams(window.location.search).get("chatid");
-
-// Show/hide fields based on type
-document.getElementById("type").addEventListener("change", function() {
-  const type = this.value;
-  const shopDiv = document.getElementById("shopnameDiv");
-  const refDiv = document.getElementById("referenceDiv");
-  const concernDiv = document.getElementById("concernDiv");
-  const concernDropdown = document.getElementById("concern");
-
-  shopDiv.classList.add("hidden");
-  refDiv.classList.add("hidden");
-  concernDiv.classList.add("hidden");
-  concernDropdown.innerHTML = "";
-
-  if(type==="Deposit Concern" || type==="Withdrawal Issue") {
-    shopDiv.classList.remove("hidden");
-    refDiv.classList.remove("hidden");
-    concernDiv.classList.remove("hidden");
-  }
-  if(type==="Report Balance Concern") {
-    shopDiv.classList.remove("hidden");
-    concernDiv.classList.remove("hidden");
-  }
-
-  if(concernOptions[type]) {
-    concernOptions[type].forEach(c => {
-      const o = document.createElement("option");
-      o.value = c;
-      o.textContent = c;
-      concernDropdown.appendChild(o);
-    });
-  }
-});
-
-// Handle form submission with proper POST for CORS
-document.getElementById("ticketForm").addEventListener("submit", function(e) {
+// ✅ submit
+document.getElementById("ticketForm").addEventListener("submit", function(e){
   e.preventDefault();
 
-  const chatid = document.getElementById("chatid").value;
-  if(!chatid) {
-    alert("Chat ID missing! Make sure you opened the form from Telegram link.");
-    return;
-  }
-
   const formData = new FormData(this);
-  const webAppUrl = "https://script.google.com/macros/s/YOUR_WEB_APP_ID/exec"; // <-- replace with your web app URL
 
-  // Use FormData directly, let Apps Script handle parsing
+  const webAppUrl = "https://script.google.com/macros/s/AKfycby26LO-8UcTT9E-Te_FSwG5BwyXeaC9zIZj4DB5QmbQ8xlcc7d5wLbKewuySfyldUC4YA/exec"; // 🔥 replace
+
   fetch(webAppUrl, {
     method: "POST",
     body: formData
   })
-  .then(r => r.text())
-  .then(result => {
-    if(result.toLowerCase().includes("success")) {
-      document.body.innerHTML = "<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
+  .then(res => res.text())
+  .then(res => {
+    if(res.includes("success")){
+      document.body.innerHTML = "<h2>✅ Ticket Submitted</h2>";
     } else {
-      alert("Error submitting ticket: " + result);
+      alert(res);
     }
   })
-  .catch(err => {
-    alert("Error submitting ticket: " + err);
-  });
+  .catch(err => alert(err));
 });
 </script>
 
