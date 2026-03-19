@@ -61,7 +61,7 @@ const concernOptions = {
 };
 
 // Show/hide fields based on type
-document.getElementById("type").addEventListener("change",function(){
+document.getElementById("type").addEventListener("change", function(){
   const type = this.value;
   const shopDiv = document.getElementById("shopnameDiv");
   const refDiv = document.getElementById("referenceDiv");
@@ -92,21 +92,22 @@ document.getElementById("type").addEventListener("change",function(){
   }
 });
 
-// Submit form
+// Submit form via POST
 document.getElementById("ticketForm").onsubmit = function(e){
   e.preventDefault();
   const formData = new FormData(this);
-  const params = new URLSearchParams();
-  formData.forEach((v,k)=>{ if(v) params.append(k,v); });
 
   const webAppUrl = "https://script.google.com/macros/s/AKfycby26LO-8UcTT9E-Te_FSwG5BwyXeaC9zIZj4DB5QmbQ8xlcc7d5wLbKewuySfyldUC4YA/exec";
 
-  fetch(webAppUrl + "?" + params.toString())
-    .then(res=>res.text())
-    .then(result=>{
-      document.body.innerHTML="<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
-    })
-    .catch(err=>alert("Error submitting ticket: "+err));
+  fetch(webAppUrl, {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.text())
+  .then(result => {
+    document.body.innerHTML = "<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
+  })
+  .catch(err => alert("Error submitting ticket: " + err));
 };
 </script>
 
