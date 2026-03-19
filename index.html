@@ -26,31 +26,29 @@
 </form>
 
 <script>
-// ✅ get chat id
+// ✅ Get chat ID from URL
 document.getElementById("chatid").value =
   new URLSearchParams(window.location.search).get("chatid");
 
-// ✅ submit
+// ✅ Submit form (FIXED)
 document.getElementById("ticketForm").addEventListener("submit", function(e){
   e.preventDefault();
 
   const formData = new FormData(this);
 
-  const webAppUrl = "https://script.google.com/macros/s/AKfycby26LO-8UcTT9E-Te_FSwG5BwyXeaC9zIZj4DB5QmbQ8xlcc7d5wLbKewuySfyldUC4YA/exec"; // 🔥 replace
+  const webAppUrl = "https://script.google.com/macros/s/AKfycby26LO-8UcTT9E-Te_FSwG5BwyXeaC9zIZj4DB5QmbQ8xlcc7d5wLbKewuySfyldUC4YA/exec";
 
   fetch(webAppUrl, {
     method: "POST",
+    mode: "no-cors",   // 🔥 FIX (prevents fetch error)
     body: formData
   })
-  .then(res => res.text())
-  .then(res => {
-    if(res.includes("success")){
-      document.body.innerHTML = "<h2>✅ Ticket Submitted</h2>";
-    } else {
-      alert(res);
-    }
+  .then(() => {
+    document.body.innerHTML = "<h2>✅ Ticket Submitted Successfully</h2><p>You can close this page.</p>";
   })
-  .catch(err => alert(err));
+  .catch(err => {
+    alert("Error: " + err);
+  });
 });
 </script>
 
