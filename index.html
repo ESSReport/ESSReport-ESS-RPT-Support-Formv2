@@ -4,44 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Support Ticket</title>
-
 <style>
 body { font-family: Arial; padding:20px; background:#f5f5f5; }
 h2 { text-align:center; }
-
-form{
-  max-width:400px;
-  margin:auto;
-  background:#fff;
-  padding:20px;
-  border-radius:8px;
-  box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
-
+form { max-width:400px; margin:auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
 label{ display:block; margin-top:10px; font-weight:bold; }
-
-input, select, button{
-  width:100%;
-  padding:10px;
-  margin-top:5px;
-  border-radius:5px;
-  border:1px solid #ccc;
-  box-sizing:border-box;
-}
-
-button{
-  background:#007bff;
-  color:white;
-  border:none;
-  cursor:pointer;
-}
-
+input, select, button{ width:100%; padding:10px; margin-top:5px; border-radius:5px; border:1px solid #ccc; box-sizing:border-box; }
+button{ background:#007bff; color:white; border:none; cursor:pointer; }
 button:hover{ background:#0056b3; }
-
 .hidden{ display:none; }
 </style>
 </head>
-
 <body>
 
 <h2>Support Ticket</h2>
@@ -72,31 +45,29 @@ button:hover{ background:#0056b3; }
 </div>
 
 <input type="hidden" name="chatid" id="chatid">
-
-<button type="submit" id="submitBtn">Submit Ticket</button>
+<button type="submit">Submit Ticket</button>
 
 </form>
 
 <script>
-// ====== CHAT ID FROM URL ======
+// Get chat ID from URL
 document.getElementById("chatid").value = new URLSearchParams(window.location.search).get("chatid");
 
-// ====== DROPDOWN OPTIONS ======
+// Dropdown options
 const concernOptions = {
   "Deposit Concern":["Double Record","Wrong Amount","Missing Depo","Wrong Shop","Not Received","Other"],
   "Withdrawal Issue":["Double Record","Wrong Amount","Missing Withdraw","Wrong Shop","Other"],
   "Report Balance Concern":["Not balance","Not Updated"]
 };
 
-// ====== SHOW/HIDE FIELDS BASED ON TYPE ======
-document.getElementById("type").addEventListener("change", function(){
+// Show/hide fields based on type
+document.getElementById("type").addEventListener("change",function(){
   const type = this.value;
   const shopDiv = document.getElementById("shopnameDiv");
   const refDiv = document.getElementById("referenceDiv");
   const concernDiv = document.getElementById("concernDiv");
   const concernDropdown = document.getElementById("concern");
 
-  // hide all
   shopDiv.classList.add("hidden");
   refDiv.classList.add("hidden");
   concernDiv.classList.add("hidden");
@@ -106,46 +77,37 @@ document.getElementById("type").addEventListener("change", function(){
     shopDiv.classList.remove("hidden");
     refDiv.classList.remove("hidden");
     concernDiv.classList.remove("hidden");
-  }
-  if(type==="Report Balance Concern"){
+  } else if(type==="Report Balance Concern"){
     shopDiv.classList.remove("hidden");
     concernDiv.classList.remove("hidden");
   }
 
   if(concernOptions[type]){
     concernOptions[type].forEach(c=>{
-      const option=document.createElement("option");
-      option.value=c;
-      option.textContent=c;
+      const option = document.createElement("option");
+      option.value = c;
+      option.textContent = c;
       concernDropdown.appendChild(option);
     });
   }
 });
 
-// ====== FORM SUBMISSION ======
-document.getElementById("ticketForm").addEventListener("submit", function(e){
+// Submit form
+document.getElementById("ticketForm").onsubmit = function(e){
   e.preventDefault();
-
-  const btn = document.getElementById("submitBtn");
-  btn.disabled = true;
-  btn.innerText = "Submitting...";
-
   const formData = new FormData(this);
+  const params = new URLSearchParams();
+  formData.forEach((v,k)=>{ if(v) params.append(k,v); });
 
   const webAppUrl = "https://script.google.com/macros/s/AKfycby26LO-8UcTT9E-Te_FSwG5BwyXeaC9zIZj4DB5QmbQ8xlcc7d5wLbKewuySfyldUC4YA/exec";
 
-  // 🔥 Fire-and-forget to avoid fetch error
-  fetch(webAppUrl, {
-    method: "POST",
-    mode: "no-cors",
-    body: formData
-  });
-
-  // ✅ show success immediately
-  setTimeout(()=>{
-    document.body.innerHTML = "<h2>✅ Ticket Submitted Successfully</h2><p>You can now close this tab.</p>";
-  }, 500);
-});
+  fetch(webAppUrl + "?" + params.toString())
+    .then(res=>res.text())
+    .then(result=>{
+      document.body.innerHTML="<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
+    })
+    .catch(err=>alert("Error submitting ticket: "+err));
+};
 </script>
 
 </body>
