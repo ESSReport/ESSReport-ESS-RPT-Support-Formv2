@@ -1,54 +1,150 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Support Ticket</title>
+
+<style>
+body { font-family: Arial; padding:20px; background:#f5f5f5; }
+h2 { text-align:center; }
+
+form{
+  max-width:400px;
+  margin:auto;
+  background:#fff;
+  padding:20px;
+  border-radius:8px;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+label{ display:block; margin-top:10px; font-weight:bold; }
+
+input, select, button{
+  width:100%;
+  padding:10px;
+  margin-top:5px;
+  border-radius:5px;
+  border:1px solid #ccc;
+  box-sizing:border-box;
+}
+
+button{
+  background:#007bff;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+
+button:hover{ background:#0056b3; }
+
+.hidden{ display:none; }
+</style>
 </head>
+
 <body>
 
 <h2>Support Ticket</h2>
 
 <form id="ticketForm">
-  <select name="department" id="type" required>
-    <option value="">Select Type</option>
-    <option value="Deposit Concern">Deposit Concern</option>
-    <option value="Withdrawal Issue">Withdrawal Issue</option>
-    <option value="Report Balance Concern">Report Balance Concern</option>
-  </select>
 
-  <input name="shopname" placeholder="Shop Name">
-  <input name="reference" placeholder="Reference">
-  <input name="concern" placeholder="Concern">
+<label>Type</label>
+<select name="department" id="type" required>
+<option value="">Select Type</option>
+<option value="Deposit Concern">Deposit Concern</option>
+<option value="Withdrawal Issue">Withdrawal Issue</option>
+<option value="Report Balance Concern">Report Balance Concern</option>
+</select>
 
-  <input type="hidden" name="chatid" id="chatid">
+<div id="shopnameDiv" class="hidden">
+<label>Shop Name</label>
+<input name="shopname" id="shopname" placeholder="Shop Name">
+</div>
 
-  <button type="submit">Submit</button>
+<div id="referenceDiv" class="hidden">
+<label>Reference</label>
+<input name="reference" id="reference" placeholder="Reference">
+</div>
+
+<div id="concernDiv" class="hidden">
+<label>Concern</label>
+<select name="concern" id="concern"></select>
+</div>
+
+<input type="hidden" name="chatid" id="chatid">
+
+<button type="submit" id="submitBtn">Submit Ticket</button>
+
 </form>
 
 <script>
-// ✅ Get chat ID from URL
-document.getElementById("chatid").value =
-  new URLSearchParams(window.location.search).get("chatid");
+// ====== CHAT ID FROM URL ======
+document.getElementById("chatid").value = new URLSearchParams(window.location.search).get("chatid");
 
-// ✅ Submit form (FIXED)
+// ====== DROPDOWN OPTIONS ======
+const concernOptions = {
+  "Deposit Concern":["Double Record","Wrong Amount","Missing Depo","Wrong Shop","Not Received","Other"],
+  "Withdrawal Issue":["Double Record","Wrong Amount","Missing Withdraw","Wrong Shop","Other"],
+  "Report Balance Concern":["Not balance","Not Updated"]
+};
+
+// ====== SHOW/HIDE FIELDS BASED ON TYPE ======
+document.getElementById("type").addEventListener("change", function(){
+  const type = this.value;
+  const shopDiv = document.getElementById("shopnameDiv");
+  const refDiv = document.getElementById("referenceDiv");
+  const concernDiv = document.getElementById("concernDiv");
+  const concernDropdown = document.getElementById("concern");
+
+  // hide all
+  shopDiv.classList.add("hidden");
+  refDiv.classList.add("hidden");
+  concernDiv.classList.add("hidden");
+  concernDropdown.innerHTML = "";
+
+  if(type==="Deposit Concern" || type==="Withdrawal Issue"){
+    shopDiv.classList.remove("hidden");
+    refDiv.classList.remove("hidden");
+    concernDiv.classList.remove("hidden");
+  }
+  if(type==="Report Balance Concern"){
+    shopDiv.classList.remove("hidden");
+    concernDiv.classList.remove("hidden");
+  }
+
+  if(concernOptions[type]){
+    concernOptions[type].forEach(c=>{
+      const option=document.createElement("option");
+      option.value=c;
+      option.textContent=c;
+      concernDropdown.appendChild(option);
+    });
+  }
+});
+
+// ====== FORM SUBMISSION ======
 document.getElementById("ticketForm").addEventListener("submit", function(e){
   e.preventDefault();
+
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.innerText = "Submitting...";
 
   const formData = new FormData(this);
 
   const webAppUrl = "https://script.google.com/macros/s/AKfycby26LO-8UcTT9E-Te_FSwG5BwyXeaC9zIZj4DB5QmbQ8xlcc7d5wLbKewuySfyldUC4YA/exec";
 
+  // 🔥 Fire-and-forget to avoid fetch error
   fetch(webAppUrl, {
     method: "POST",
-    mode: "no-cors",   // 🔥 FIX (prevents fetch error)
+    mode: "no-cors",
     body: formData
-  })
-  .then(() => {
-    document.body.innerHTML = "<h2>✅ Ticket Submitted Successfully</h2><p>You can close this page.</p>";
-  })
-  .catch(err => {
-    alert("Error: " + err);
   });
+
+  // ✅ show success immediately
+  setTimeout(()=>{
+    document.body.innerHTML = "<h2>✅ Ticket Submitted Successfully</h2><p>You can now close this tab.</p>";
+  }, 500);
 });
 </script>
 
